@@ -327,16 +327,46 @@ const FIXED_ORIGIN = process.env.ORIGIN || "https://flip.gg";
 const FIXED_HOST = process.env.HOST || "api.flip.gg";
 
 // Simple HTTP health check
+// const server = http.createServer((req, res) => {
+//   console.log(`[HTTP] ${req.method} ${req.url}`);
+  
+//   if (req.url === "/" || req.url === "/health") {
+//     res.writeHead(200, { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*" });
+//     res.end("Socket.IO proxy alive\n");
+//     return;
+//   }
+//   res.writeHead(404);
+//   res.end();
+// });
+// Simple HTTP health check + CORS preflight handling
 const server = http.createServer((req, res) => {
   console.log(`[HTTP] ${req.method} ${req.url}`);
-  
+
+  // Handle health check
   if (req.url === "/" || req.url === "/health") {
-    res.writeHead(200, { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*" });
+    res.writeHead(200, {
+      "Content-Type": "text/plain",
+      "Access-Control-Allow-Origin": "*"
+    });
     res.end("Socket.IO proxy alive\n");
     return;
   }
-  res.writeHead(404);
-  res.end();
+
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400" // Cache preflight for 1 day
+    });
+    res.end();
+    return;
+  }
+
+  // Default 404 for other routes
+  res.writeHead(404, { "Content-Type": "text/plain" });
+  res.end("Not Found");
 });
 
 // Socket.IO server for frontend clients
