@@ -1,11 +1,11 @@
 import http from "http";
-import socketio from "socket.io";          // v2.4.1
-import socketioClient from "socket.io-client"; // v2.4.1
+import { Server } from "socket.io";
+import { io as ClientIO } from "socket.io-client";
 
 const PORT = process.env.PORT || 3000;
 const TARGET = process.env.TARGET || "https://api.flip.gg";
-const FIXED_ORIGIN = process.env.ORIGIN || "https://api.flip.gg";
-const FIXED_HOST = process.env.HOST || "flip.gg";
+const FIXED_ORIGIN = process.env.ORIGIN || "https://flip.gg";
+const FIXED_HOST = process.env.HOST || "api.flip.gg";
 
 // Simple HTTP health check
 const server = http.createServer((req, res) => {
